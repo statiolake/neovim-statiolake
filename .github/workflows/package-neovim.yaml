@@ -1,0 +1,170 @@
+name: Package Neovim
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+  schedule:
+    - cron: "0 0 * * *"
+
+env:
+  NEOVIM_REPO: https://github.com/neovim/neovim
+  NEOVIMQT_REPO: https://github.com/equalsraf/Neovim-qt
+  NEOVIMQT_PATCHREPO: https://github.com/statiolake/Neovim-qt
+  PATCH_REVS: win10-darkmode jg-editor-size
+  VCVARSALL: C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat
+  GITBIN: C:\Program Files\Git\usr\bin
+
+jobs:
+  package:
+    runs-on: windows-latest
+
+    steps:
+      - name: Initalize
+        id: init
+        shell: bash
+        run: |
+          echo "::set-output name=date::$(date +%Y%m%d)"
+          git config --global core.autocrlf input
+      - uses: actions/checkout@v2
+      - name: Download Neovim nightly
+        id: neovim_download
+        shell: bash
+        run: |
+          curl -f -L ${NEOVIM_REPO}/releases/download/nightly/nvim-win64.zip -o downloads/nvim-win64.zip
+          mkdir package/artifacts
+          7z x -y downloads/nvim-win64.zip -opackage/artifacts
+
+          package/artifacts/Neovim/bin/nvim --version
+          echo "::set-output name=version::$(package/artifacts/Neovim/bin/nvim --version)"
+
+      - name: Clone Neovim-qt
+        shell: bash
+        run: |
+          git clone ${NEOVIMQT_REPO}
+          cd Neovim-qt
+
+          # add patch repo
+          git remote add statiolake ${NEOVIMQT_PATCHREPO}
+          git fetch statiolake
+
+      - name: Apply private patches for Neovim-qt
+        shell: bash
+        run: |
+          cd Neovim-qt
+          git config --local user.name "statiolake"
+          git config --local user.email "statiolake@users.noreply.github.com"
+          for patch in ${PATCH_REVS}; do
+            git checkout -b $patch statiolake/$patch
+            git rebase origin/master
+            git checkout master
+            git merge --squash $patch
+            git commit -m "Apply private patch: merge branch ${patch}"
+          done
+
+      - name: Cache Qt
+        id: cache-qt
+        uses: actions/cache@v1 # not v2!
+        with:
+          path: ../Qt
+          key: ${{ runner.os }}-QtCache
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v2
+        with:
+          arch: win64_msvc2019_64
+          cached: ${{ steps.cache-qt.outputs.cache-hit }}
+
+      - name: Build Neovim-qt
+        shell: cmd
+        run: |
+          path %PATH%;%CD%\package\artifacts\Neovim\bin
+          call "%VCVARSALL%" x64
+          cd Neovim-qt
+          md build INSTALL
+          cd build
+
+          echo Prepare...
+          cmake -G "Visual Studio 16" ^
+            -DCMAKE_PREFIX_PATH="%QT5_Dir%\msvc2019_64" ^
+            -DCMAKE_BUILD_TYPE=Release ^
+            -DCMAKE_INSTALL_PREFIX=..\INSTALL ..
+
+          echo Build...
+          cmake --build . --target install --config Release
+
+      - name: Install Neovim-qt
+        shell: cmd
+        run: |
+          robocopy Neovim-qt\INSTALL package\artifacts\Neovim /E /IS
+          :: Ignore robocopy return value (that is not error actually)
+          echo robocopy finished at %ERRORLEVEL% - assume success
+          exit 0
+
+      - name: Package
+        shell: cmd
+        run: |
+          cd package\artifacts
+          7z a -mx=9 neovim-statiolake.zip Neovim
+          7z a -mx=9 neovim-statiolake.7z  Neovim
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: neovim-statiolake
+          path: ./package/artifacts
+
+  release:
+    runs-on: windows-latest
+    needs: [package]
+    if: github.event_name != 'pull_request'
+
+    steps:
+      - name: Initalize
+        shell: bash
+        run: |
+          git config --global core.autocrlf input
+      - uses: actions/checkout@v2
+      - name: Download Artifact
+        uses: actions/download-artifact@v1
+        with:
+          name: neovim-statiolake
+      - name: Get version
+        id: version
+        shell: bash
+        run: |
+          neovim-statiolake/Neovim/bin/nvim --version | tee version.txt
+          echo "::set-output name=short::$(neovim-statiolake/Neovim/bin/nvim --version | head -n 1 | sed -E 's/^NVIM //')"
+          echo "::set-output name=long::$(neovim-statiolake/Neovim/bin/nvim --version)"
+      - name: Commit
+        id: commit
+        shell: bash
+        run: |
+          if git diff --quiet HEAD version.txt; then
+            echo "No update - ignore publishing"
+            echo "::set-output name=skipped::yes"
+          else
+            git config --local user.name "statiolake"
+            git config --local user.email "statiolake@users.noreply.github.com"
+            git add version.txt
+            git commit -m "${{ steps.version.outputs.short }}"
+            git tag "${{ steps.version.outputs.short }}"
+            git push origin master --tags
+            echo "::set-output name=skipped::no"
+          fi
+
+      - name: Create Release
+        uses: softprops/action-gh-release@9993ae85344fa542b3edb2533f97011277698cf6
+        if: steps.commit.outputs.skipped == 'no'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          name: ${{ steps.version.outputs.short }}
+          body: |
+            ${{ steps.version.outputs.long }}
+          tag_name: ${{ steps.version.outputs.short }}
+          draft: false
+          prerelease: false
+          files: |
+            ./neovim-statiolake/neovim-statiolake.zip
+            ./neovim-statiolake/neovim-statiolake.7z
