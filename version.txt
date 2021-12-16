@@ -1,1 +1,12 @@
-dummy 
+NVIM v0.7.0-dev+727-g326e74571
+Build type: RelWithDebInfo
+LuaJIT 2.1.0-beta3
+Compiled by runneradmin@fv-az159-992
+
+Features: -acl +iconv +tui
+See ":help feature-compile"
+
+   system vimrc file: "$VIM\sysinit.vim"
+  fall-back for $VIM: "C:/Program Files/nvim/share/nvim"
+
+Run :checkhealth for more info
