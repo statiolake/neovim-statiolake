@@ -15,6 +15,7 @@ env:
   PATCH_REVS: win10-darkmode jg-editor-size enlarge disable-font-merging
   VCVARSALL: C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat
   GITBIN: C:\Program Files\Git\usr\bin
+  QT_VERSION: 5.15.2
 
 jobs:
   package:
@@ -68,11 +69,12 @@ jobs:
         uses: actions/cache@v1 # not v2!
         with:
           path: ../Qt
-          key: ${{ runner.os }}-QtCache
+          key: ${{ runner.os }}-QtCache-${{ env.QT_VERSION }}
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v2
         with:
+          version: ${{ env.QT_VERSION }}
           arch: win64_msvc2019_64
           cached: ${{ steps.cache-qt.outputs.cache-hit }}
 
