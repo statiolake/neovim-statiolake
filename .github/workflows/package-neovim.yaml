@@ -12,7 +12,9 @@ env:
   NEOVIM_REPO: https://github.com/neovim/neovim
   NEOVIMQT_REPO: https://github.com/equalsraf/Neovim-qt
   NEOVIMQT_PATCHREPO: https://github.com/statiolake/Neovim-qt
-  PATCH_REVS: win10-darkmode jg-editor-size enlarge
+  NEOVIMQT_PATCHREVS: win10-darkmode jg-editor-size enlarge
+  NVY_REPO: https://github.com/statiolake/nvy
+  NVY_PATCHREVS: darkmode exitstatus guifont-fallback
   VCVARSALL: C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat
   GITBIN: C:\Program Files\Git\usr\bin
   QT_VERSION: 5.15.2
@@ -56,7 +58,7 @@ jobs:
           cd Neovim-qt
           git config --local user.name "statiolake"
           git config --local user.email "statiolake@users.noreply.github.com"
-          for patch in ${PATCH_REVS}; do
+          for patch in ${NEOVIMQT_PATCHREVS}; do
             git checkout -b $patch statiolake/$patch
             git rebase origin/master
             git checkout master
@@ -104,12 +106,50 @@ jobs:
           echo robocopy finished at %ERRORLEVEL% - assume success
           exit 0
 
+      - name: Install Ninja
+        uses: seanmiddleditch/gha-setup-ninja@master
+
+      - name: Clone Nvy
+        shell: bash
+        run: |
+          git clone ${NVY_REPO}
+
+      - name: Apply private patches for Nvy
+        shell: bash
+        run: |
+          cd Nvy
+          git config --local user.name "statiolake"
+          git config --local user.email "statiolake@users.noreply.github.com"
+          for patch in ${NVY_PATCHREVS}; do
+            git checkout -b $patch origin/$patch
+            git rebase origin/master
+            git checkout master
+            git merge --squash $patch
+            git commit -m "Apply private patch: merge branch ${patch}"
+          done
+
+      - name: Build Nvy
+        shell: cmd
+        run: |
+          call "%VCVARSALL%" x64
+          cd Nvy
+          md build
+          cd build
+          cmake .. -G Ninja
+          ninja
+
+      - name: Install Nvy
+        shell: cmd
+        run: |
+          md package\artifacts\Nvy
+          copy Nvy\build\nvy.exe package\artifacts\Nvy
+
       - name: Package
         shell: cmd
         run: |
           cd package\artifacts
-          7z a -mx=9 neovim-statiolake.zip Neovim
-          7z a -mx=9 neovim-statiolake.7z  Neovim
+          7z a -mx=9 neovim-statiolake.zip Neovim Nvy
+          7z a -mx=9 neovim-statiolake.7z  Neovim Nvy
       - name: Upload Artifact
         uses: actions/upload-artifact@v1
         with:
