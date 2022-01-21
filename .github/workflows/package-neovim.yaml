@@ -14,7 +14,7 @@ env:
   NEOVIMQT_PATCHREPO: https://github.com/statiolake/Neovim-qt
   NEOVIMQT_PATCHREVS: win10-darkmode jg-editor-size enlarge
   NVY_REPO: https://github.com/statiolake/nvy
-  NVY_PATCHREVS: darkmode exitstatus guifont-fallback set-title
+  NVY_PATCHREVS: darkmode guifont-fallback
   VCVARSALL: C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat
   GITBIN: C:\Program Files\Git\usr\bin
   QT_VERSION: 5.15.2
