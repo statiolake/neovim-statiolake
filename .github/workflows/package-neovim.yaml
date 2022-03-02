@@ -9,7 +9,7 @@ on:
     - cron: "0 0 * * *"
 
 env:
-  NEOVIM_REPO: https://github.com/neovim/neovim
+  NEOVIM_DOWNLOAD_URL: https://github.com/neovim/neovim/releases/download/nightly/nvim-win64.zip
   NEOVIMQT_REPO: https://github.com/equalsraf/Neovim-qt
   NEOVIMQT_PATCHREPO: https://github.com/statiolake/Neovim-qt
   NEOVIMQT_PATCHREVS: win10-darkmode jg-editor-size enlarge
@@ -35,10 +35,11 @@ jobs:
         id: neovim_download
         shell: bash
         run: |
-          curl -f -L ${NEOVIM_REPO}/releases/download/nightly/nvim-win64.zip -o downloads/nvim-win64.zip
+          curl -f -L ${NEOVIM_DOWNLOAD_URL} -o downloads/nvim-win64.zip
           mkdir package/artifacts
           7z x -y downloads/nvim-win64.zip -opackage/artifacts
 
+          mv package/artifacts/nvim-win64 package/artifacts/Neovim
           package/artifacts/Neovim/bin/nvim --version
           echo "::set-output name=version::$(package/artifacts/Neovim/bin/nvim --version)"
 
