@@ -12,7 +12,7 @@ env:
   NEOVIM_DOWNLOAD_URL: https://github.com/neovim/neovim/releases/download/nightly/nvim-win64.zip
   NEOVIMQT_REPO: https://github.com/equalsraf/Neovim-qt
   NEOVIMQT_PATCHREPO: https://github.com/statiolake/Neovim-qt
-  NEOVIMQT_PATCHREVS: win10-darkmode jg-editor-size enlarge
+  NEOVIMQT_PATCHREVS: win10-darkmode enlarge
   NVY_REPO: https://github.com/statiolake/nvy
   NVY_PATCHREVS: darkmode guifont-fallback
   VCVARSALL: C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat
