@@ -1,4 +1,4 @@
-name: Package Neovim
+name: Package Neovim (Nightly)
 
 on:
   push:
