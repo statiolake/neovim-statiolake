@@ -1,15 +1,14 @@
-name: Package Neovim
+name: Package Neovim (Release)
 
 on:
   push:
     branches:
       - master
   pull_request:
-  schedule:
-    - cron: "0 0 * * *"
 
 env:
-  NEOVIM_DOWNLOAD_URL: https://github.com/neovim/neovim/releases/download/nightly/nvim-win64.zip
+  NEOVIM_VERSION: v0.7.0
+  NEOVIM_DOWNLOAD_URL: https://github.com/neovim/neovim/releases/download/v0.7.0/nvim-win64.zip
   NEOVIMQT_REPO: https://github.com/equalsraf/Neovim-qt
   NEOVIMQT_PATCHREPO: https://github.com/statiolake/Neovim-qt
   NEOVIMQT_PATCHREVS: win10-darkmode enlarge
@@ -31,7 +30,9 @@ jobs:
           echo "::set-output name=date::$(date +%Y%m%d)"
           git config --global core.autocrlf input
       - uses: actions/checkout@v2
-      - name: Download Neovim nightly
+        with:
+          ref: release
+      - name: Download Neovim ${{ env.NEOVIM_VERSION }}
         id: neovim_download
         shell: bash
         run: |
@@ -168,6 +169,8 @@ jobs:
         run: |
           git config --global core.autocrlf input
       - uses: actions/checkout@v2
+        with:
+          ref: release
       - name: Download Artifact
         uses: actions/download-artifact@v1
         with:
@@ -192,7 +195,7 @@ jobs:
             git add version.txt
             git commit -m "${{ steps.version.outputs.short }}"
             git tag "${{ steps.version.outputs.short }}"
-            git push origin master --tags
+            git push origin release --tags
             echo "::set-output name=skipped::no"
           fi
 
