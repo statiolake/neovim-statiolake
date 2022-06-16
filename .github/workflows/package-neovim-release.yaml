@@ -11,9 +11,9 @@ env:
   NEOVIM_DOWNLOAD_URL: https://github.com/neovim/neovim/releases/download/v0.7.0/nvim-win64.zip
   NEOVIMQT_REPO: https://github.com/equalsraf/Neovim-qt
   NEOVIMQT_PATCHREPO: https://github.com/statiolake/Neovim-qt
-  NEOVIMQT_PATCHREVS: win10-darkmode enlarge
+  NEOVIMQT_PATCHREVS: enlarge
   NVY_REPO: https://github.com/statiolake/nvy
-  NVY_PATCHREVS: darkmode guifont-fallback fix-floating-edge undercurl
+  NVY_PATCHREVS: guifont-fallback fix-floating-edge undercurl
   VCVARSALL: C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat
   GITBIN: C:\Program Files\Git\usr\bin
   QT_VERSION: 5.15.2
