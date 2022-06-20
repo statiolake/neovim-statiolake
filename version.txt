@@ -1,7 +1,7 @@
-NVIM v0.8.0-dev+441-ge651ae586
+NVIM v0.8.0-dev+448-g7b2b44bce
 Build type: RelWithDebInfo
 LuaJIT 2.1.0-beta3
-Compiled by runneradmin@fv-az15-345
+Compiled by runneradmin@fv-az320-56
 
 Features: -acl +iconv +tui
 See ":help feature-compile"
