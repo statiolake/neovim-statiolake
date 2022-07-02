@@ -12,7 +12,7 @@ env:
   NEOVIMQT_REPO: https://github.com/equalsraf/Neovim-qt
   NEOVIMQT_PATCHREPO: https://github.com/statiolake/Neovim-qt
   NEOVIMQT_PATCHREVS: win10-darkmode enlarge
-  NVY_REPO: https://github.com/statiolake/nvy
+  NVY_REPO: https://github.com/statiolake/Nvy
   NVY_PATCHREVS: darkmode guifont-fallback fix-floating-edge undercurl
   VCVARSALL: C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat
   GITBIN: C:\Program Files\Git\usr\bin
