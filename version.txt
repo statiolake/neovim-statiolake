@@ -1,10 +1,6 @@
-NVIM v0.9.0-dev-991+g44da6a56b
+NVIM v0.9.0-dev-1001+gcbd4480f9
 Build type: RelWithDebInfo
 LuaJIT 2.1.0-beta3
-Compiled by runneradmin@fv-az8-670
-
-Features: -acl +tui
-See ":help feature-compile"
 
    system vimrc file: "$VIM\sysinit.vim"
   fall-back for $VIM: "C:/Program Files (x86)/nvim/share/nvim"
