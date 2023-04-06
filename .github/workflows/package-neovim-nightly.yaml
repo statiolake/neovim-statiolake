@@ -26,7 +26,7 @@ jobs:
         id: init
         shell: bash
         run: |
-          echo "::set-output name=date::$(date +%Y%m%d)"
+          echo "date=$(date +%Y%m%d)" >> $GITHUB_OUTPUT
           git config --global core.autocrlf input
       - uses: actions/checkout@v2
       - name: Download Neovim nightly
@@ -39,7 +39,7 @@ jobs:
 
           mv package/artifacts/nvim-win64 package/artifacts/Neovim
           package/artifacts/Neovim/bin/nvim --version
-          echo "::set-output name=version::$(package/artifacts/Neovim/bin/nvim --version)"
+          echo "version=$(package/artifacts/Neovim/bin/nvim --version)" >> $GITHUB_OUTPUT
 
       - name: Clone Neovim-qt
         shell: bash
@@ -140,15 +140,15 @@ jobs:
         shell: bash
         run: |
           neovim-statiolake/Neovim/bin/nvim --version | tee version.txt
-          echo "::set-output name=short::$(neovim-statiolake/Neovim/bin/nvim --version | head -n 1 | sed -E 's/^NVIM //')"
-          echo "::set-output name=long::$(neovim-statiolake/Neovim/bin/nvim --version)"
+          echo "short=$(neovim-statiolake/Neovim/bin/nvim --version | head -n 1 | sed -E 's/^NVIM //')" >> $GITHUB_OUTPUT
+          echo "long=$(neovim-statiolake/Neovim/bin/nvim --version)" >> $GITHUB_OUTPUT
       - name: Commit
         id: commit
         shell: bash
         run: |
           if git diff --quiet HEAD version.txt; then
             echo "No update - ignore publishing"
-            echo "::set-output name=skipped::yes"
+            echo "skipped=yes" >> $GITHUB_OUTPUT
           else
             git config --local user.name "statiolake"
             git config --local user.email "statiolake@users.noreply.github.com"
@@ -156,7 +156,7 @@ jobs:
             git commit -m "${{ steps.version.outputs.short }}"
             git tag "${{ steps.version.outputs.short }}"
             git push origin master --tags
-            echo "::set-output name=skipped::no"
+            echo "skipped=no" >> $GITHUB_OUTPUT
           fi
 
       - name: Create Release
