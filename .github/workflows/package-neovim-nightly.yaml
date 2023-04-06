@@ -39,7 +39,9 @@ jobs:
 
           mv package/artifacts/nvim-win64 package/artifacts/Neovim
           package/artifacts/Neovim/bin/nvim --version
-          echo "version=\"$(package/artifacts/Neovim/bin/nvim --version)\"" >> $GITHUB_OUTPUT
+          echo "version=<<EOF" >> $GITHUB_OUTPUT
+          echo "$(package/artifacts/Neovim/bin/nvim --version)" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Clone Neovim-qt
         shell: bash
@@ -141,7 +143,9 @@ jobs:
         run: |
           neovim-statiolake/Neovim/bin/nvim --version | tee version.txt
           echo "short=\"$(neovim-statiolake/Neovim/bin/nvim --version | head -n 1 | sed -E 's/^NVIM //')\"" >> $GITHUB_OUTPUT
-          echo "long=\"$(neovim-statiolake/Neovim/bin/nvim --version)\"" >> $GITHUB_OUTPUT
+          echo "long=<<EOF" >> $GITHUB_OUTPUT
+          echo "$(neovim-statiolake/Neovim/bin/nvim --version)" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
       - name: Commit
         id: commit
         shell: bash
