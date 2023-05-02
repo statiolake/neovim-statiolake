@@ -1,4 +1,4 @@
-NVIM v0.10.0-dev-227+gfa20c12ba
+NVIM v0.10.0-dev-235+ga803bff89
 Build type: RelWithDebInfo
 LuaJIT 2.1.0-beta3
 Compilation: C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Tools/MSVC/14.29.30133/bin/Hostx64/x64/cl.exe /MD /Zi /O2 /Ob1  -W3 -wd4311 -wd4146 -DUNIT_TESTING -D_CRT_SECURE_NO_WARNINGS -D_CRT_NONSTDC_NO_DEPRECATE -D_WIN32_WINNT=0x0602 -DMSWIN -DINCLUDE_GENERATED_DECLARATIONS -ID:/a/neovim/neovim/.deps/usr/include/luajit-2.1 -ID:/a/neovim/neovim/.deps/usr/include -ID:/a/neovim/neovim/.deps/usr/include -ID:/a/neovim/neovim/build/src/nvim/auto -ID:/a/neovim/neovim/build/include -ID:/a/neovim/neovim/build/cmake.config -ID:/a/neovim/neovim/src -ID:/a/neovim/neovim/.deps/usr/include -ID:/a/neovim/neovim/.deps/usr/include -ID:/a/neovim/neovim/.deps/usr/include -ID:/a/neovim/neovim/.deps/usr/include -ID:/a/neovim/neovim/.deps/usr/include -ID:/a/neovim/neovim/.deps/usr/include -ID:/a/neovim/neovim/.deps/usr/include
