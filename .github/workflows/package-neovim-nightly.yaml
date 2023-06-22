@@ -76,7 +76,7 @@ jobs:
           key: ${{ runner.os }}-QtCache-${{ env.QT_VERSION }}
 
       - name: Install Qt
-        uses: jurplel/install-qt-action@v2
+        uses: jurplel/install-qt-action@v3
         with:
           version: ${{ env.QT_VERSION }}
           arch: win64_msvc2019_64
