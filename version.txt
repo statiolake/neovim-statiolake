@@ -1,4 +1,4 @@
-NVIM v0.10.0-dev-766+gef44e5972
+NVIM v0.10.0-dev-772+g0211f889b
 Build type: RelWithDebInfo
 LuaJIT 2.1.0-beta3
 Run "nvim -V1 -v" for more info
