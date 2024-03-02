@@ -7,20 +7,67 @@ on:
   pull_request:
   schedule:
     - cron: "0 0 * * *"
-
-env:
-  NEOVIM_DOWNLOAD_URL: https://github.com/neovim/neovim/releases/download/nightly/nvim-win64.zip
-  NEOVIMQT_REPO: https://github.com/equalsraf/Neovim-qt
-  NEOVIMQT_PATCHREPO: https://github.com/statiolake/Neovim-qt
-  NEOVIMQT_PATCHREVS: win10-darkmode enlarge clip-undercurl fix-ime-position
-  VCVARSALL: C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat
-  GITBIN: C:\Program Files\Git\usr\bin
-  QT_VERSION: 5.15.2
+  workflow_dispatch:
 
 jobs:
-  package:
-    runs-on: windows-2019
+  package_linux:
+    strategy:
+      matrix:
+        target:
+          - x86_64-unknown-linux-gnu
+          - x86_64-unknown-linux-musl
+          - aarch64-unknown-linux-gnu
+          - aarch64-unknown-linux-musl
+        include:
+          - target: x86_64-unknown-linux-gnu
+            use_qemu: false
+            use_alpine: false
+          - target: x86_64-unknown-linux-musl
+            use_qemu: false
+            use_alpine: true
+          - target: aarch64-unknown-linux-gnu
+            use_qemu: true
+            use_alpine: false
+          - target: aarch64-unknown-linux-musl
+            use_qemu: true
+            use_alpine: true
+    runs-on: ubuntu-22.04
 
+    steps:
+      - name: Install requirements
+        run: sudo apt-get install ninja-build gettext cmake unzip curl p7zip-full build-essential
+      - uses: actions/checkout@v4
+      - name: Clone Neovim
+        run: |
+          cd repos
+          git clone https://github.com/neovim/neovim
+      - name: Build Neovim
+        run: |
+          mkdir -p package/artifacts/nvim
+          cd repos/neovim
+          make CMAKE_BUILD_TYPE=RelWithDebInfo CMAKE_INSTALL_PREFIX=../../package/artifacts/nvim
+
+      - name: Package
+        run: |
+          cd package/artifacts
+          7z a -mx=9 neovim-statiolake-${{ matrix.target }}.zip nvim
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: neovim-statiolake-${{ matrix.target }}
+          path: ./package/artifacts/neovim-statiolake-${{ matrix.target }}.zip
+
+  package_windows:
+    env:
+      NEOVIM_DOWNLOAD_URL: https://github.com/neovim/neovim/releases/download/nightly/nvim-win64.zip
+      NEOVIMQT_REPO: https://github.com/equalsraf/Neovim-qt
+      NEOVIMQT_PATCHREPO: https://github.com/statiolake/Neovim-qt
+      NEOVIMQT_PATCHREVS: win10-darkmode enlarge clip-undercurl fix-ime-position
+      VCVARSALL: C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat
+      GITBIN: C:\Program Files\Git\usr\bin
+      QT_VERSION: 5.15.2
+    runs-on: windows-2019
     steps:
       - name: Initalize
         id: init
@@ -47,6 +94,7 @@ jobs:
       - name: Clone Neovim-qt
         shell: bash
         run: |
+          cd repos
           git clone ${NEOVIMQT_REPO}
           cd Neovim-qt
 
@@ -57,7 +105,7 @@ jobs:
       - name: Apply private patches for Neovim-qt
         shell: bash
         run: |
-          cd Neovim-qt
+          cd repos/Neovim-qt
           git config --local user.name "statiolake"
           git config --local user.email "statiolake@users.noreply.github.com"
           for patch in ${NEOVIMQT_PATCHREVS}; do
@@ -87,7 +135,7 @@ jobs:
         run: |
           path %PATH%;%CD%\package\artifacts\Neovim\bin
           call "%VCVARSALL%" x64
-          cd Neovim-qt
+          cd repos\Neovim-qt
           md build INSTALL
           cd build
 
@@ -103,7 +151,7 @@ jobs:
       - name: Install Neovim-qt
         shell: cmd
         run: |
-          robocopy Neovim-qt\INSTALL package\artifacts\Neovim /E /IS
+          robocopy repos\Neovim-qt\INSTALL package\artifacts\Neovim /E /IS
           :: Ignore robocopy return value (that is not error actually)
           echo robocopy finished at %ERRORLEVEL% - assume success
           exit 0
@@ -112,17 +160,17 @@ jobs:
         shell: cmd
         run: |
           cd package\artifacts
-          7z a -mx=9 neovim-statiolake.zip Neovim
-          7z a -mx=9 neovim-statiolake.7z  Neovim
+          7z a -mx=9 neovim-statiolake-x86_64-pc-windows-msvc.zip Neovim
+
       - name: Upload Artifact
         uses: actions/upload-artifact@v1
         with:
-          name: neovim-statiolake
-          path: ./package/artifacts
+          name: neovim-statiolake-x86_64-pc-windows-msvc
+          path: ./package/artifacts/neovim-statiolake-x86_64-pc-windows-msvc.zip
 
   release:
     runs-on: windows-latest
-    needs: [package]
+    needs: [package_windows, package_linux]
     if: github.event_name != 'pull_request'
 
     steps:
@@ -130,7 +178,7 @@ jobs:
         shell: bash
         run: |
           git config --global core.autocrlf input
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Download Artifact
         uses: actions/download-artifact@v1
         with:
