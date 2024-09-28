@@ -116,7 +116,7 @@ jobs:
           7z a -mx=9 neovim-statiolake.zip Neovim
           7z a -mx=9 neovim-statiolake.7z  Neovim
       - name: Upload Artifact
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4
         with:
           name: neovim-statiolake
           path: ./package/artifacts
