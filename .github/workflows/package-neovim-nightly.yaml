@@ -140,11 +140,11 @@ jobs:
         id: version
         shell: bash
         run: |
-          neovim-statiolake/Neovim/bin/nvim --version | tee version.txt
-          echo "short=$(neovim-statiolake/Neovim/bin/nvim --version | head -n 1 | sed -E 's/^NVIM //')" >> $GITHUB_OUTPUT
+          Neovim/bin/nvim --version | tee version.txt
+          echo "short=$(Neovim/bin/nvim --version | head -n 1 | sed -E 's/^NVIM //')" >> $GITHUB_OUTPUT
           delim="$(openssl rand -hex 8)"
           echo "long<<${delim}" >> $GITHUB_OUTPUT
-          neovim-statiolake/Neovim/bin/nvim --version >> $GITHUB_OUTPUT
+          Neovim/bin/nvim --version >> $GITHUB_OUTPUT
           echo "${delim}" >> $GITHUB_OUTPUT
       - name: Commit
         id: commit
@@ -176,5 +176,5 @@ jobs:
           draft: false
           prerelease: false
           files: |
-            ./neovim-statiolake/neovim-statiolake.zip
-            ./neovim-statiolake/neovim-statiolake.7z
+            ./neovim-statiolake.zip
+            ./neovim-statiolake.7z
